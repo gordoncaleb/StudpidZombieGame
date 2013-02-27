@@ -31,13 +31,12 @@ Kinetic.QImage = function(config) {
     if(config.srcheight === undefined) {
         config.srcheight = config.image.height;
     }
-    config.drawFunc = function() {
-        var canvas = this.getCanvas();
-        var context = this.getContext();
+    config.drawFunc = function(canvas) {
+        var context = canvas.getContext();
         context.beginPath();
         context.rect(0, 0, this.width, this.height);
         context.closePath();
-        this.fillStroke();
+        canvas.fillStroke(this);
         context.drawImage(this.image, this.srcx, this.srcy, this.srcwidth, this.srcheight, 0, 0, this.width, this.height);
     };
     // call super constructor
@@ -114,4 +113,4 @@ Kinetic.QImage.prototype = {
     
 };
 // extend Shape
-Kinetic.GlobalObject.extend(Kinetic.QImage, Kinetic.Shape);
+Kinetic.Global.extend(Kinetic.QImage, Kinetic.Shape);
