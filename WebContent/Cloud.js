@@ -1,9 +1,9 @@
 function Cloud(config) {
 
-	this.xoffset = 0;//config.image.width / 2;
-	this.yoffset = 0;//config.image.height / 2;
+	this.xoffset = 0;// config.image.width / 2;
+	this.yoffset = 0;// config.image.height / 2;
 
-	this.speed = Math.random() * 0.5;
+	this.speed = Math.random() * 0.5 + 0.1;
 
 	this.x = config.x - this.xoffset;
 	this.y = config.y - this.yoffset;
@@ -18,7 +18,7 @@ function Cloud(config) {
 		image : config.image,
 		width : config.image.width,
 		height : config.image.height,
-		//offset : [ this.xoffset, this.yoffset ],
+	// offset : [ this.xoffset, this.yoffset ],
 	// rotation : Math.random() * 3.14159 * 2,
 	});
 
@@ -59,7 +59,7 @@ Cloud.prototype = {
 
 		if (this.getX() > this.layer.getStage().getWidth()) {
 			this.setX(-this.getWidth());
-			this.setY(this.goff * Math.random());
+			this.setY((this.goff - 300) * Math.random());
 		}
 	}
 };

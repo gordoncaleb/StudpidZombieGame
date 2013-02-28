@@ -28,23 +28,23 @@ function initStage(images) {
 
 	var stage = new Kinetic.Stage({
 		container : 'container',
-		width : 640,
+		width : 1200,
 		height : 640
 	});
 
 	var layer = new Kinetic.Layer();
 	var maplayer = new Kinetic.Layer();
-	var objectlayer = new Kinetic.Layer();
+	//var objectlayer = new Kinetic.Layer();
 
 	var clouds = Array();
 
 	for ( var i = 0; i < 10; i++) {
 		clouds[i] = new Cloud({
 			x : stage.getWidth() * Math.random(),
-			y : (goff - 100) * Math.random(),
+			y : (goff - 300) * Math.random(),
 			goff : goff - 100,
 			image : images.cloud,
-			layer : layer
+			layer : maplayer
 		});
 
 	}
@@ -55,21 +55,23 @@ function initStage(images) {
 		vx : 0,
 		vy : 0,
 		image : images.spaceGuy,
+		jetpackImage : images.jetpackfire,
+		boomImage : images.boomImage,
 		layer : layer
 	});
 
 	var zombies = new Array();
 
-	for ( var z = 0; z < 2; z++) {
-		zombies[z] = new Zombie({
-			x : tS * (10 + z),
-			y : goff,
-			vx : 0,
-			vy : 0,
-			image : images.zombie,
-			layer : layer
-		});
-	}
+	// for ( var z = 0; z < 2; z++) {
+	// zombies[z] = new Zombie({
+	// x : tS * (10 + z),
+	// y : goff,
+	// vx : 0,
+	// vy : 0,
+	// image : images.zombie,
+	// layer : layer
+	// });
+	// }
 
 	var ground = new Kinetic.Rect({
 		x : 0,
@@ -77,16 +79,17 @@ function initStage(images) {
 		width : stage.getWidth(),
 		height : stage.getHeight() - goff,
 		fill : '#FF9640',
-		stroke : 'black',
-		strokeWidth : 4
+	// stroke : 'black',
+	// strokeWidth : 4
 	});
 
-	layer.add(ground);
+	maplayer.add(ground);
 
-	// stage.add(maplayer);
+	stage.add(maplayer);
 	stage.add(layer);
 
-	ground.moveToBottom();
+	
+	// ground.moveToBottom();
 
 	// This allows multiple keys to be pressed at the same time
 	var input = {};
@@ -109,14 +112,22 @@ function initStage(images) {
 
 	// stage.onFrame(function(frame) {// wasd, arrows
 
+	var level = 2;
+
 	var anim = new Kinetic.Animation(function(frame) {
 
 		if (pressedInput[38] || pressedInput[87]) {
 			spaceGuy.jump(goff);
 		}
-		
-		if(pressedInput[83]){
+
+		if (pressedInput[83]) {
 			spaceGuy.shootGun();
+		}
+
+		if (input[32]) {
+			spaceGuy.jetPackOn();
+		} else {
+			spaceGuy.jetPackOff();
 		}
 
 		if (input[37] || input[65]) {
@@ -131,14 +142,37 @@ function initStage(images) {
 				spaceGuy.standStill();
 			}
 		}
-		
-		spaceGuy.propagate(goff);
+
+		spaceGuy.propagate(goff, zombies);
+
+		for (zombie in zombies) {
+			if (zombies[zombie].getHp() <= 0) {
+				zombies[zombie].die();
+				zombies.splice(zombie, 1);
+			}
+		}
+
+		if (zombies.length == 0) {
+			level++;
+			for ( var i = 0; i < level; i++) {
+				zombies[i] = new Zombie({
+					x : Math.random() * stage.getWidth(),
+					y : 0,
+					vx : 0,
+					vy : 0,
+					image : images.zombie,
+					layer : layer
+				});
+			}
+
+			spaceGuy.getSprite().moveToBottom();
+		}
 
 		for (zombie in zombies) {
 			moveAI(zombies[zombie], spaceGuy);
 			applyPhyiscs(zombies[zombie], 1, goff);
 		}
-
+		
 		for (cloud in clouds) {
 			clouds[cloud].drift();
 		}
@@ -147,18 +181,20 @@ function initStage(images) {
 		for (key in pressedInput) {
 			pressedInput[key] = false;
 		}
+		
+		maplayer.draw();
 
 	}, layer);
 
 	anim.start();
 
-	// var bakAnimation = new Kinetic.Animation(function(frame) {
-	// for (cloud in clouds) {
-	// clouds[cloud].setX(clouds[cloud].getX() + 1);
-	// }
-	// }, layer);
-	//
-	// bakAnimation.start();
+//	var bakAnimation = new Kinetic.Animation(function(frame) {
+//		for (cloud in clouds) {
+//			clouds[cloud].drift();
+//		}
+//	}, maplayer);
+//
+//	bakAnimation.start();
 }
 
 function moveAI(enemy, player) {
@@ -199,6 +235,8 @@ function moveAI(enemy, player) {
 window.onload = function() {
 	var sources = {
 		spaceGuy : "./sprite.php_files/space_guy.png",
+		jetpackfire : "./sprite.php_files/jetpackfire.png",
+		boomImage : "./sprite.php_files/explosion1.png",
 		zombie : "./sprite.php_files/zombie.png",
 		skeleton : "./sprite.php_files/skeleton.png",
 		cloud : "./sprite.php_files/cloud.png",

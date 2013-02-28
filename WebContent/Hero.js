@@ -1,6 +1,6 @@
 function Hero(config) {
 
-	var animations = {
+	var spaceGuyAnimations = {
 		up : [ {
 			x : 0,
 			y : 0,
@@ -61,12 +61,22 @@ function Hero(config) {
 	this.y = config.y;
 	this.vx = config.vx;
 	this.vy = config.vy;
+	this.width = 32;
+	this.height = 48;
 
 	this.moving = false;
 
 	this.gun = new Gun({
 		layer : config.layer,
 		owner : this,
+		boomImage : config.boomImage,
+	});
+
+	this.jetpack = new JetPack({
+		x : this.x,
+		y : this.y,
+		thrust : 1.2,
+		image : config.jetpackImage
 	});
 
 	// forward facing
@@ -80,10 +90,11 @@ function Hero(config) {
 		y : this.y,
 		image : config.image,
 		animation : 'down',
-		animations : animations,
+		animations : spaceGuyAnimations,
 		framerate : 7
 	});
 
+	config.layer.add(this.jetpack.getSprite());
 	config.layer.add(this.sprite);
 
 	this.sprite.start();
@@ -98,6 +109,12 @@ Hero.prototype = {
 	setX : function(x) {
 		this.x = x;
 		this.sprite.setX(x);
+
+		if (this.face > 0) {
+			this.jetpack.setX(x - 5);
+		} else {
+			this.jetpack.setX(x + 5);
+		}
 	},
 
 	getY : function() {
@@ -107,6 +124,9 @@ Hero.prototype = {
 	setY : function(y) {
 		this.y = y;
 		this.sprite.setY(y);
+
+		this.jetpack.setY(y + this.height - 15);
+
 	},
 
 	getSprite : function() {
@@ -145,11 +165,17 @@ Hero.prototype = {
 		this.speed = speed;
 	},
 
+	getWidth : function() {
+		return this.width;
+	},
+
+	getHeight : function() {
+		return this.height;
+	},
+
 	moveRight : function() {
 		if (this.face <= 0) {
 			this.sprite.setAnimation('right');
-
-			
 
 			this.face = 1;
 		}
@@ -158,7 +184,7 @@ Hero.prototype = {
 			this.sprite.start();
 			this.moving = true;
 		}
-		
+
 		this.setVX(this.getSpeed());
 	},
 
@@ -172,7 +198,7 @@ Hero.prototype = {
 			this.sprite.start();
 			this.moving = true;
 		}
-		
+
 		this.setVX(-this.getSpeed());
 	},
 
@@ -183,10 +209,19 @@ Hero.prototype = {
 		this.sprite.stop();
 	},
 
-	propagate : function(goff) {
-		this.gun.moveProjectiles();
+	propagate : function(goff, enemies) {
+		this.gun.moveProjectiles(enemies);
 
-		applyPhyiscs(this, this.a, goff);
+		applyPhyiscs(this, this.a - this.jetpack.getA(), goff);
+
+	},
+
+	jetPackOn : function() {
+		this.jetpack.activate(this.face);
+	},
+
+	jetPackOff : function() {
+		this.jetpack.deactivate();
 	},
 
 	shootGun : function() {
