@@ -145,10 +145,12 @@ Zombie.prototype = {
 
 	animateRight : function() {
 		this.sprite.setAnimation('right');
+		this.sprite.setIndex(Math.floor((Math.random() * 3)));
 	},
 
 	animateLeft : function() {
 		this.sprite.setAnimation('left');
+		this.sprite.setIndex(Math.floor((Math.random() * 3)));
 	},
 
 	standStill : function() {

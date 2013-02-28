@@ -44,7 +44,7 @@ function initStage(images) {
 			y : (goff - 300) * Math.random(),
 			goff : goff - 100,
 			image : images.cloud,
-			layer : maplayer
+			layer : layer
 		});
 
 	}
@@ -83,7 +83,7 @@ function initStage(images) {
 	// strokeWidth : 4
 	});
 
-	maplayer.add(ground);
+	layer.add(ground);
 
 	stage.add(maplayer);
 	stage.add(layer);
