@@ -69,7 +69,6 @@ function Hero(config) {
 	this.gun = new Gun({
 		layer : config.layer,
 		owner : this,
-		boomImage : config.boomImage,
 	});
 
 	this.jetpack = new JetPack({
@@ -93,6 +92,9 @@ function Hero(config) {
 		animations : spaceGuyAnimations,
 		framerate : 7
 	});
+
+	this.getGunProjectile = getRedBulletProjectile;
+	this.boomImage = config.boomImage;
 
 	config.layer.add(this.jetpack.getSprite());
 	config.layer.add(this.sprite);
@@ -210,7 +212,7 @@ Hero.prototype = {
 	},
 
 	propagate : function(goff, enemies) {
-		this.gun.moveProjectiles(enemies);
+		this.gun.moveProjectiles(enemies, goff + this.height);
 
 		applyPhyiscs(this, this.a - this.jetpack.getA(), goff);
 
@@ -225,7 +227,11 @@ Hero.prototype = {
 	},
 
 	shootGun : function() {
-		this.gun.fire();
+		this.gun.fire(this.getGunProjectile(this, this.boomImage));
+	},
+
+	throwGranade : function() {
+		this.gun.fire(getGrenadeProjectile(this, this.boomImage));
 	},
 
 	jump : function(goff) {

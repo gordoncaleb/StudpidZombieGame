@@ -66,8 +66,10 @@ function Zombie(config) {
 	this.height = 48;
 
 	this.speed = 1;
+	
+	this.a = config.a;
 
-	this.hp = 2;
+	this.hp = 1;
 
 	this.sprite = new Kinetic.Sprite({ // This sprite was 3x4 tiles
 		x : this.x,
@@ -133,6 +135,10 @@ Zombie.prototype = {
 
 	setVY : function(vy) {
 		this.vy = vy;
+	},
+	
+	getA : function(){
+		return this.a;
 	},
 
 	getSpeed : function() {

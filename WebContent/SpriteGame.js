@@ -34,7 +34,7 @@ function initStage(images) {
 
 	var layer = new Kinetic.Layer();
 	var maplayer = new Kinetic.Layer();
-	//var objectlayer = new Kinetic.Layer();
+	// var objectlayer = new Kinetic.Layer();
 
 	var clouds = Array();
 
@@ -88,7 +88,6 @@ function initStage(images) {
 	stage.add(maplayer);
 	stage.add(layer);
 
-	
 	// ground.moveToBottom();
 
 	// This allows multiple keys to be pressed at the same time
@@ -122,6 +121,10 @@ function initStage(images) {
 
 		if (pressedInput[83]) {
 			spaceGuy.shootGun();
+		}
+
+		if (pressedInput[71]) {
+			spaceGuy.throwGranade();
 		}
 
 		if (input[32]) {
@@ -160,19 +163,20 @@ function initStage(images) {
 					y : 0,
 					vx : 0,
 					vy : 0,
+					a : .1,
 					image : images.zombie,
 					layer : layer
 				});
 			}
 
-			spaceGuy.getSprite().moveToBottom();
+			// spaceGuy.getSprite().moveToBottom();
 		}
 
-		for (zombie in zombies) {
-			moveAI(zombies[zombie], spaceGuy);
-			applyPhyiscs(zombies[zombie], 1, goff);
+		for (z in zombies) {
+			// moveAI(zombies[z], spaceGuy);
+			applyPhyiscs(zombies[z], zombies[z].getA(), goff);
 		}
-		
+
 		for (cloud in clouds) {
 			clouds[cloud].drift();
 		}
@@ -181,20 +185,20 @@ function initStage(images) {
 		for (key in pressedInput) {
 			pressedInput[key] = false;
 		}
-		
+
 		maplayer.draw();
 
 	}, layer);
 
 	anim.start();
 
-//	var bakAnimation = new Kinetic.Animation(function(frame) {
-//		for (cloud in clouds) {
-//			clouds[cloud].drift();
-//		}
-//	}, maplayer);
-//
-//	bakAnimation.start();
+	// var bakAnimation = new Kinetic.Animation(function(frame) {
+	// for (cloud in clouds) {
+	// clouds[cloud].drift();
+	// }
+	// }, maplayer);
+	//
+	// bakAnimation.start();
 }
 
 function moveAI(enemy, player) {

@@ -3,73 +3,25 @@ function Gun(config) {
 	this.layer = config.layer;
 	this.owner = config.owner;
 
-	this.boomImage = config.boomImage;
-
-	var boom = Array();
-	for ( var i = 0; i < 4; i++) {
-		boom[i] = {
-			x : 78 * i,
-			y : 0,
-			width : 78,
-			height : 79
-		};
-	}
-
-	var noBoom = {
-		x : 78 * 5,
-		y : 0,
-		width : 78,
-		height : 79,
-	};
-
-	this.boomAnimations = {
-		boom : boom,
-		noboom : noBoom,
-	};
-
 	this.damage = 1;
 	this.projectiles = Array();
 
 }
 
 Gun.prototype = {
-	fire : function() {
-
-		var cir = new Kinetic.Circle({
-			x : 0,
-			y : 0,
-			radius : 3,
-			fill : 'red',
-		});
-
-		var newProj = new Projectile({
-			x : this.owner.getX(),
-			y : this.owner.getY() + 30,
-			vx : this.owner.getFace() * 10,
-			vy : 0,
-			a : 0,
-			width : 6,
-			height : 6,
-			damage : this.damage,
-			image : cir
-		});
-
-		if (this.owner.getFace() > 0) {
-			newProj.setX(this.owner.getX() + 32);
-		}
+	fire : function(newProj) {
 
 		this.projectiles.push(newProj);
 
-		this.layer.add(cir);
+		this.layer.add(newProj.getImg());
+		newProj.getImg().moveToBottom();
 
 	},
 
-	moveProjectiles : function(objects) {
+	moveProjectiles : function(objects, goff) {
 		var proj;
 		for (p in this.projectiles) {
 			proj = this.projectiles[p];
-
-			applyPhyiscs(proj, proj.getA(), this.layer.getStage().getHeight());
 
 			if (proj.getX() > this.layer.getStage().getWidth()
 					&& proj.getVX() > 0) {
@@ -80,32 +32,48 @@ Gun.prototype = {
 					// flew off left side of screen
 					this.removeProjectile(p, proj);
 				} else {
-					for (obj in objects) {
-						if (collision(objects[obj], proj)) {
-							objects[obj].hit(proj.getDamage());
+					if (proj.getY() >= goff) {
+						// hit ground
 
-							var boom = new Kinetic.Sprite({
-								x : objects[obj].getX() - 39 + 16,
-								y : objects[obj].getY(),
-								image : this.boomImage,
-								animation : 'boom',
-								animations : this.boomAnimations,
-								framerate : 2
-							});
+						for (obj in objects) {
+							if (distance(objects[obj].getX(), objects[obj]
+									.getY(), proj.getX(), proj.getY()) <= proj
+									.getBlastRadius()) {
+								objects[obj].hit(proj.getDamage());
+							}
+						}
 
-							boom.afterFrame(3, function() {
-								this.stop();
-								this.destroy();
-							});
+						var boom = proj.getBoom();
 
-							this.layer.add(boom);
-							boom.start();
+						boom.setX(proj.getX() - boom.avgWidth / 2);
+						boom.setY(goff - boom.avgHeight / 2);
 
-							this.removeProjectile(p, proj);
+						this.layer.add(boom);
+						boom.start();
+
+						this.removeProjectile(p, proj);
+
+					} else {
+						for (obj in objects) {
+							if (collision(objects[obj], proj)) {
+								objects[obj].hit(proj.getDamage());
+
+								var boom = proj.getBoom();
+
+								boom.setX(objects[obj].getX() - 39 + 16);
+								boom.setY(objects[obj].getY());
+
+								this.layer.add(boom);
+								boom.start();
+
+								this.removeProjectile(p, proj);
+							}
 						}
 					}
 				}
 			}
+
+			applyPhyiscs(proj, proj.getA(), this.layer.getStage().getHeight());
 
 		}
 
@@ -123,7 +91,7 @@ Gun.prototype = {
 	removeProjectile : function(p, proj) {
 		this.projectiles[p].setDone();
 		proj.getImg().destroy();
-	}
+	},
 
 };
 
@@ -139,7 +107,9 @@ function Projectile(config) {
 	this.damage = config.damage;
 	this.width = config.width;
 	this.height = config.height;
+	this.blastRadius = config.blastRadius;
 	this.done = false;
+	this.boom = config.boom;
 }
 
 Projectile.prototype = {
@@ -201,6 +171,14 @@ Projectile.prototype = {
 		return this.damage;
 	},
 
+	getBlastRadius : function() {
+		return this.blastRadius;
+	},
+
+	getBoom : function() {
+		return this.boom;
+	},
+
 	setDone : function() {
 		this.done = true;
 	},
@@ -209,6 +187,134 @@ Projectile.prototype = {
 		return this.done;
 	}
 };
+
+function getGrenadeProjectile(owner, boomImage) {
+	var cir = new Kinetic.Circle({
+		x : 0,
+		y : 0,
+		radius : 4,
+		fill : 'blue',
+	});
+
+	var boom = Array();
+	for ( var i = 0; i < 4; i++) {
+		boom[i] = {
+			x : 78 * i,
+			y : 0,
+			width : 78,
+			height : 79,
+		};
+	}
+
+	var noBoom = {
+		x : 78 * 5,
+		y : 0,
+		width : 78,
+		height : 79,
+	};
+
+	var boomAnimations = {
+		boom : boom,
+		noboom : noBoom,
+	};
+
+	var boom = new Kinetic.Sprite({
+		x : 0,
+		y : 0,
+		image : boomImage,
+		animation : 'boom',
+		animations : boomAnimations,
+		framerate : 2,
+	});
+
+	boom.afterFrame(3, function() {
+		this.stop();
+		this.destroy();
+	});
+
+	boom.avgHeight = 79;
+	boom.avgWidth = 78;
+
+	var newProj = new Projectile({
+		x : owner.getX() + owner.getWidth() / 2,
+		y : owner.getY() + 30,
+		vx : owner.getFace() * 10,
+		vy : -5,
+		a : .5,
+		width : 8,
+		height : 8,
+		damage : 1,
+		blastRadius : 40,
+		image : cir,
+		boom : boom,
+	});
+
+	return newProj;
+}
+
+function getRedBulletProjectile(owner, boomImage) {
+	var cir = new Kinetic.Circle({
+		x : 0,
+		y : 0,
+		radius : 3,
+		fill : 'red',
+	});
+
+	var boom = Array();
+	for ( var i = 0; i < 4; i++) {
+		boom[i] = {
+			x : 78 * i,
+			y : 0,
+			width : 78,
+			height : 79,
+		};
+	}
+
+	var noBoom = {
+		x : 78 * 5,
+		y : 0,
+		width : 78,
+		height : 79,
+	};
+
+	var boomAnimations = {
+		boom : boom,
+		noboom : noBoom,
+	};
+
+	var boom = new Kinetic.Sprite({
+		x : 0,
+		y : 0,
+		image : boomImage,
+		animation : 'boom',
+		animations : boomAnimations,
+		framerate : 2,
+	});
+
+	boom.afterFrame(3, function() {
+		this.stop();
+		this.destroy();
+	});
+
+	boom.avgHeight = 79;
+	boom.avgWidth = 78;
+
+	var newProj = new Projectile({
+		x : owner.getX() + owner.getWidth() / 2,
+		y : owner.getY() + 30,
+		vx : owner.getFace() * 10,
+		vy : 0,
+		a : 0,
+		width : 6,
+		height : 6,
+		damage : 1,
+		blastRadius : 3,
+		image : cir,
+		boom : boom,
+	});
+
+	return newProj;
+}
 
 function JetPack(config) {
 	this.a = 0;
@@ -226,7 +332,7 @@ function JetPack(config) {
 			x : 28 * i,
 			y : 0,
 			width : 28,
-			height : 48
+			height : 48,
 		};
 	}
 
@@ -236,7 +342,7 @@ function JetPack(config) {
 			x : 28 * i,
 			y : 48,
 			width : 28,
-			height : 48
+			height : 48,
 		};
 	}
 
@@ -247,7 +353,7 @@ function JetPack(config) {
 		x : 0,
 		y : 96,
 		width : 28,
-		height : 48
+		height : 48,
 	} ];
 
 	this.sprite = new Kinetic.Sprite({
@@ -256,7 +362,7 @@ function JetPack(config) {
 		image : config.image,
 		animation : 'off',
 		animations : jetpackAnimations,
-		framerate : 7
+		framerate : 7,
 	});
 
 }
