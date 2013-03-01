@@ -36,20 +36,23 @@ Gun.prototype = {
 						// hit ground
 
 						for (obj in objects) {
-							if (distance(objects[obj].getX(), objects[obj]
-									.getY(), proj.getX(), proj.getY()) <= proj
+							if (distance(objects[obj].getX()
+									+ objects[obj].getWidth() / 2, objects[obj]
+									.getY()
+									+ objects[obj].getHeight() / 2,
+									proj.getX(), proj.getY()) <= proj
 									.getBlastRadius()) {
 								objects[obj].hit(proj.getDamage());
 							}
 						}
 
-						var boom = proj.getBoom();
+						var boomSprite = proj.getBoomSprite();
 
-						boom.setX(proj.getX() - boom.avgWidth / 2);
-						boom.setY(goff - boom.avgHeight / 2);
+						boomSprite.setX(proj.getX() - boomSprite.avgWidth / 2);
+						boomSprite.setY(goff - boomSprite.avgHeight / 2);
 
-						this.layer.add(boom);
-						boom.start();
+						this.layer.add(boomSprite);
+						boomSprite.start();
 
 						this.removeProjectile(p, proj);
 
@@ -58,13 +61,13 @@ Gun.prototype = {
 							if (collision(objects[obj], proj)) {
 								objects[obj].hit(proj.getDamage());
 
-								var boom = proj.getBoom();
+								var boomSprite = proj.getBoomSprite();
 
-								boom.setX(objects[obj].getX() - 39 + 16);
-								boom.setY(objects[obj].getY());
+								boomSprite.setX(objects[obj].getX() - 39 + 16);
+								boomSprite.setY(objects[obj].getY());
 
-								this.layer.add(boom);
-								boom.start();
+								this.layer.add(boomSprite);
+								boomSprite.start();
 
 								this.removeProjectile(p, proj);
 							}
@@ -109,7 +112,7 @@ function Projectile(config) {
 	this.height = config.height;
 	this.blastRadius = config.blastRadius;
 	this.done = false;
-	this.boom = config.boom;
+	this.boomSprite = config.boomSprite;
 }
 
 Projectile.prototype = {
@@ -175,8 +178,8 @@ Projectile.prototype = {
 		return this.blastRadius;
 	},
 
-	getBoom : function() {
-		return this.boom;
+	getBoomSprite : function() {
+		return this.boomSprite;
 	},
 
 	setDone : function() {
@@ -218,22 +221,22 @@ function getGrenadeProjectile(owner, boomImage) {
 		noboom : noBoom,
 	};
 
-	var boom = new Kinetic.Sprite({
+	var boomSprite = new Kinetic.Sprite({
 		x : 0,
 		y : 0,
 		image : boomImage,
 		animation : 'boom',
 		animations : boomAnimations,
-		framerate : 2,
+		framerate : 7,
+	});
+	
+	boomSprite.afterFrame(3, function() {
+		boomSprite.stop();
+		boomSprite.destroy();
 	});
 
-	boom.afterFrame(3, function() {
-		this.stop();
-		this.destroy();
-	});
-
-	boom.avgHeight = 79;
-	boom.avgWidth = 78;
+	boomSprite.avgHeight = 79;
+	boomSprite.avgWidth = 78;
 
 	var newProj = new Projectile({
 		x : owner.getX() + owner.getWidth() / 2,
@@ -244,9 +247,9 @@ function getGrenadeProjectile(owner, boomImage) {
 		width : 8,
 		height : 8,
 		damage : 5,
-		blastRadius : 40,
+		blastRadius : 50,
 		image : cir,
-		boom : boom,
+		boomSprite : boomSprite,
 	});
 
 	return newProj;
@@ -282,22 +285,23 @@ function getRedBulletProjectile(owner, boomImage) {
 		noboom : noBoom,
 	};
 
-	var boom = new Kinetic.Sprite({
+	var boomSprite = new Kinetic.Sprite({
 		x : 0,
 		y : 0,
 		image : boomImage,
 		animation : 'boom',
 		animations : boomAnimations,
-		framerate : 2,
+		framerate : 7,
+	});
+	
+	boomSprite.afterFrame(3, function() {
+		// boom.setAnimation('noboom');
+		boomSprite.stop();
+		boomSprite.destroy();
 	});
 
-	boom.afterFrame(3, function() {
-		this.stop();
-		this.destroy();
-	});
-
-	boom.avgHeight = 79;
-	boom.avgWidth = 78;
+	boomSprite.avgHeight = 79;
+	boomSprite.avgWidth = 78;
 
 	var newProj = new Projectile({
 		x : owner.getX() + owner.getWidth() / 2,
@@ -310,7 +314,7 @@ function getRedBulletProjectile(owner, boomImage) {
 		damage : 1,
 		blastRadius : 3,
 		image : cir,
-		boom : boom,
+		boomSprite : boomSprite,
 	});
 
 	return newProj;

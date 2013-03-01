@@ -123,7 +123,7 @@ function initStage(images) {
 			spaceGuy.shootGun();
 		}
 
-		if (pressedInput[71]) {
+		if (input[71]) {
 			spaceGuy.throwGranade();
 		}
 
