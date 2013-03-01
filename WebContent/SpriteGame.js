@@ -164,6 +164,7 @@ function initStage(images) {
 					vx : 0,
 					vy : 0,
 					a : .1,
+					hp: 5,
 					image : images.zombie,
 					layer : layer
 				});

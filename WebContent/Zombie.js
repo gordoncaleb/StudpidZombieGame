@@ -69,7 +69,7 @@ function Zombie(config) {
 	
 	this.a = config.a;
 
-	this.hp = 1;
+	this.hp = config.hp;
 
 	this.sprite = new Kinetic.Sprite({ // This sprite was 3x4 tiles
 		x : this.x,

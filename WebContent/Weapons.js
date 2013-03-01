@@ -243,7 +243,7 @@ function getGrenadeProjectile(owner, boomImage) {
 		a : .5,
 		width : 8,
 		height : 8,
-		damage : 1,
+		damage : 5,
 		blastRadius : 40,
 		image : cir,
 		boom : boom,
