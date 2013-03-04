@@ -15,7 +15,8 @@ Gun.prototype = {
 		this.projectiles.push(newProj);
 
 		newProj.setX(this.owner.getX() + this.owner.getWidth() / 2);
-		newProj.setY(this.owner.getY());
+		newProj.setY(this.owner.getY() + this.owner.getHeight() / 2
+				- newProj.getWidth() / 2);
 
 		newProj.setVX(Math.cos(theta) * newProj.speed);
 		newProj.setVY(-Math.sin(theta) * newProj.speed);
@@ -91,8 +92,7 @@ Gun.prototype = {
 			}
 
 			if (!proj.isDone()) {
-				applyPhyiscs(proj, proj.getA(), this.layer.getStage()
-						.getHeight());
+				applyPhyiscs(proj, this.layer.getStage().getHeight());
 			}
 
 		}
@@ -116,7 +116,8 @@ function Projectile(config) {
 	this.y = config.y;
 	this.vx = config.vx;
 	this.vy = config.vy;
-	this.a = config.a;
+	this.ay = config.ay;
+	this.ax = config.ax;
 	this.img = config.image;
 	this.img.setX(this.x);
 	this.img.setY(this.y);
@@ -172,8 +173,12 @@ Projectile.prototype = {
 		this.vy = vy;
 	},
 
-	getA : function() {
-		return this.a;
+	getAY : function() {
+		return this.ay;
+	},
+
+	getAX : function() {
+		return this.ax;
 	},
 
 	setA : function(a) {
@@ -283,10 +288,11 @@ function getGrenadeProjectile() {
 		y : 0,
 		vx : 0,
 		vy : 0,
-		a : .5,
+		ay : .5,
+		ax : 0,
 		speed : 10,
-		width : 8,
-		height : 8,
+		width : 46,
+		height : 46,
 		damage : 5,
 		blastRadius : 50,
 		image : grenade,
@@ -349,7 +355,8 @@ function getRedBulletProjectile(owner) {
 		y : 0,
 		vx : 0,
 		vy : 0,
-		a : 0,
+		ay : 0,
+		ax : 0,
 		speed : 10,
 		width : 6,
 		height : 6,

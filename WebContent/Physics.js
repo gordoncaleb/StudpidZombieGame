@@ -1,14 +1,55 @@
-function applyPhyiscs(actor, a, goff) {
+function applyPhyiscs(actor, gObjs) {
 	var dt = 1;
 
-	actor.setX(actor.getX() + actor.getVX() * dt);
-	actor.setY(actor.getY() + actor.getVY() * dt + 0.5 * a * dt * dt);
+	var ax1 = actor.getX();
+	var ay1 = actor.getY();
+	var ax2 = actor.getX() + actor.getVX() * dt + 0.5 * actor.getAX() * dt * dt;
+	var ay2 = actor.getY() + actor.getVY() * dt + 0.5 * actor.getAY() * dt * dt;
 
-	if (actor.getY() > goff) {
-		actor.setVY(0);
-		actor.setY(goff);
-	} else {
-		actor.setVY(actor.getVY() + 0.5 * a * dt * dt);
+	actor.setX(ax2);
+	actor.setY(ay2);
+
+	actor.setVY(actor.getVY() + 0.5 * actor.getAY() * dt * dt);
+	actor.setVX(actor.getVX() + 0.5 * actor.getAX() * dt * dt);
+
+	var abot = actor.getY() + actor.getHeight();
+	var atop = actor.getY();
+	var aleft = actor.getX() + actor.getWidth();
+	var aright = actor.getX();
+
+	for (o in gObjs) {
+		if (collision(gObjs[o], actor)) {
+
+			var obot = gObjs[o].getY() + gObjs[o].getHeight();
+			var otop = gObjs[o].getY();
+			var oleft = gObjs[o].getX() + gObjs[o].getWidth();
+			var oright = gObjs[o].getX();
+
+			// bumping head
+			if (atop >= obot) {
+				actor.setVY(0);
+				actor.setY(obot);
+			}
+
+			// landing on
+			if (abot <= otop) {
+				actor.setVY(0);
+				actor.setY(otop - actor.getHeight());
+			}
+
+			//
+			if (aright >= oleft) {
+				actor.setVX(0);
+				actor.setX(oleft - actor.getWidth());
+			}
+
+			if (aleft <= oright) {
+				actor.setVX(0);
+				actor.setX(oright);
+			}
+
+			break;
+		}
 	}
 
 }

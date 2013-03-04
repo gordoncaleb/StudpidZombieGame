@@ -51,6 +51,8 @@ function initStage(images) {
 		y : goff,
 		vx : 0,
 		vy : 0,
+		ay : 0,
+		ax : 0,
 		image : images.spaceGuy,
 		jetpackImage : images.jetpackfire,
 		boomImage : images.boomImage,
@@ -71,16 +73,50 @@ function initStage(images) {
 	// }
 
 	var ground = new Kinetic.Rect({
-		x : 0,
+		x : -1,
 		y : goff + 48,
-		width : stage.getWidth(),
-		height : stage.getHeight() - goff,
+		width : stage.getWidth() + 2,
+		height : stage.getHeight() - goff + 1,
 		fill : '#FF9640',
-	// stroke : 'black',
-	// strokeWidth : 4
+		stroke : 'black',
+		strokeWidth : 1
 	});
 
 	layer.add(ground);
+
+	var floatBlock = new Kinetic.Rect({
+		x : stage.getWidth() * 0.45,
+		y : 300,
+		width : stage.getWidth() * 0.1,
+		height : 20,
+		fill : '#FF9640',
+		stroke : 'black',
+		strokeWidth : 1,
+		ay : 0,
+		ax : 0,
+		vy : 0,
+		vx : 0,
+	});
+
+	layer.add(floatBlock);
+
+	var floatBlock2 = new Kinetic.Rect({
+		x : stage.getWidth() * 0.35,
+		y : 500,
+		width : stage.getWidth() * 0.1,
+		height : 20,
+		fill : '#FF9640',
+		stroke : 'black',
+		strokeWidth : 1,
+		ay : 0,
+		ax : 0,
+		vy : 0,
+		vx : 0,
+	});
+
+	layer.add(floatBlock2);
+
+	var gObjs = [ ground, floatBlock, floatBlock2 ];
 
 	stage.add(maplayer);
 	stage.add(layer);
@@ -108,14 +144,28 @@ function initStage(images) {
 
 	document.addEventListener('click', function(e) {
 		var pos = stage.getMousePosition();
-		spaceGuy.shootGun(Math.atan2(pos.x - spaceGuy.getX(), pos.y
-				- spaceGuy.getY())
-				- Math.PI / 2);
+
+		if (!pos) {
+			return;
+		}
+
+		var theta = Math
+				.atan2(pos.x - spaceGuy.getX(), pos.y - spaceGuy.getY())
+				- Math.PI / 2;
+
+		if (theta < Math.PI / 2 && theta > -Math.PI / 2) {
+			spaceGuy.faceRight();
+		} else {
+			spaceGuy.faceLeft();
+		}
+
+		spaceGuy.shootGun(theta);
 	});
 
 	// stage.onFrame(function(frame) {// wasd, arrows
 
 	var level = 2;
+	var fblocktheta = 0;
 
 	var anim = new Kinetic.Animation(function(frame) {
 
@@ -150,7 +200,10 @@ function initStage(images) {
 			}
 		}
 
-		spaceGuy.propagate(goff, zombies);
+		fblocktheta = fblocktheta + Math.PI / 100;
+		floatBlock2.setX(floatBlock2.getX() + 3 * Math.sin(fblocktheta));
+
+		spaceGuy.propagate(gObjs, zombies);
 
 		for (z in zombies) {
 			if (zombies[z].getHp() <= 0) {
@@ -164,11 +217,12 @@ function initStage(images) {
 			for ( var i = 0; i < level; i++) {
 				zombies[i] = new Zombie({
 					x : Math.random() * stage.getWidth(),
-					y : 0,
+					y : -48,
 					vx : 0,
 					vy : 0,
-					a : .01,
-					hp : 5,
+					ax : 0,
+					ay : 0.1,
+					hp : 1,
 					image : images.zombie,
 					layer : layer
 				});
@@ -178,8 +232,8 @@ function initStage(images) {
 		}
 
 		for (z in zombies) {
-			moveAI(zombies[z], spaceGuy);
-			applyPhyiscs(zombies[z], zombies[z].getA(), goff);
+			// moveAI(zombies[z], spaceGuy);
+			applyPhyiscs(zombies[z], gObjs);
 		}
 
 		for (c in clouds) {

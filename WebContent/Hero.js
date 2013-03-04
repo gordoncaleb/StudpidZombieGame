@@ -82,7 +82,8 @@ function Hero(config) {
 	this.face = 0;
 
 	this.speed = 4;
-	this.a = 1;
+	this.ay = 1;
+	this.ax = 0;
 
 	this.sprite = new Kinetic.Sprite({ // This sprite was 3x4 tiles
 		x : this.x,
@@ -154,6 +155,14 @@ Hero.prototype = {
 	setVY : function(vy) {
 		this.vy = vy;
 	},
+	
+	getAY : function(){
+		return this.ay - this.jetpack.getA();
+	},
+	
+	getAX : function(){
+		return this.ax;
+	},
 
 	getFace : function() {
 		return this.face;
@@ -175,12 +184,24 @@ Hero.prototype = {
 		return this.height;
 	},
 
-	moveRight : function() {
+	faceRight : function() {
 		if (this.face <= 0) {
 			this.sprite.setAnimation('right');
 
 			this.face = 1;
 		}
+	},
+
+	faceLeft : function() {
+		if (this.face >= 0) {
+			this.sprite.setAnimation('left');
+			this.face = -1;
+		}
+	},
+
+	moveRight : function() {
+
+		this.faceRight();
 
 		if (!this.moving) {
 			this.sprite.start();
@@ -191,11 +212,9 @@ Hero.prototype = {
 	},
 
 	moveLeft : function() {
-		if (this.face >= 0) {
-			this.sprite.setAnimation('left');
-			this.face = -1;
-		}
 
+		this.faceLeft();
+		
 		if (!this.moving) {
 			this.sprite.start();
 			this.moving = true;
@@ -211,10 +230,11 @@ Hero.prototype = {
 		this.sprite.stop();
 	},
 
-	propagate : function(goff, enemies) {
+	propagate : function(gObjs, enemies) {
 		this.gun.moveProjectiles(enemies, goff + this.height);
 
-		applyPhyiscs(this, this.a - this.jetpack.getA(), goff);
+		
+		applyPhyiscs(this, gObjs);
 
 	},
 

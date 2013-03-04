@@ -66,8 +66,9 @@ function Zombie(config) {
 	this.height = 48;
 
 	this.speed = 1;
-	
-	this.a = config.a;
+
+	this.ay = config.ay;
+	this.ax = config.ax;
 
 	this.hp = config.hp;
 
@@ -136,9 +137,13 @@ Zombie.prototype = {
 	setVY : function(vy) {
 		this.vy = vy;
 	},
-	
-	getA : function(){
-		return this.a;
+
+	getAY : function() {
+		return this.ay;
+	},
+
+	getAX : function() {
+		return this.ax;
 	},
 
 	getSpeed : function() {
