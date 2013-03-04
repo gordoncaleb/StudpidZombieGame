@@ -1,8 +1,3 @@
-var UP = 0;
-var RIGHT = 1;
-var LEFT = 3;
-var DOWN = 2;
-
 var tS = 32;
 var goff = tS * 17 - 10;
 
@@ -25,6 +20,8 @@ function loadImages(sources, callback) {
 }
 
 function initStage(images) {
+
+	window.gameImages = images;
 
 	var stage = new Kinetic.Stage({
 		container : 'container',
@@ -109,6 +106,13 @@ function initStage(images) {
 		input[keyCode] = false;
 	});
 
+	document.addEventListener('click', function(e) {
+		var pos = stage.getMousePosition();
+		spaceGuy.shootGun(Math.atan2(pos.x - spaceGuy.getX(), pos.y
+				- spaceGuy.getY())
+				- Math.PI / 2);
+	});
+
 	// stage.onFrame(function(frame) {// wasd, arrows
 
 	var level = 2;
@@ -123,8 +127,8 @@ function initStage(images) {
 			spaceGuy.shootGun();
 		}
 
-		if (input[71]) {
-			spaceGuy.throwGranade();
+		if (pressedInput[71]) {
+			spaceGuy.throwGrenade();
 		}
 
 		if (input[32]) {
@@ -148,10 +152,10 @@ function initStage(images) {
 
 		spaceGuy.propagate(goff, zombies);
 
-		for (zombie in zombies) {
-			if (zombies[zombie].getHp() <= 0) {
-				zombies[zombie].die();
-				zombies.splice(zombie, 1);
+		for (z in zombies) {
+			if (zombies[z].getHp() <= 0) {
+				zombies[z].die();
+				zombies.splice(z, 1);
 			}
 		}
 
@@ -163,8 +167,8 @@ function initStage(images) {
 					y : 0,
 					vx : 0,
 					vy : 0,
-					a : .1,
-					hp: 5,
+					a : .01,
+					hp : 5,
 					image : images.zombie,
 					layer : layer
 				});
@@ -174,12 +178,12 @@ function initStage(images) {
 		}
 
 		for (z in zombies) {
-			// moveAI(zombies[z], spaceGuy);
+			moveAI(zombies[z], spaceGuy);
 			applyPhyiscs(zombies[z], zombies[z].getA(), goff);
 		}
 
-		for (cloud in clouds) {
-			clouds[cloud].drift();
+		for (c in clouds) {
+			clouds[c].drift();
 		}
 
 		// clear pressed inputs
@@ -187,7 +191,7 @@ function initStage(images) {
 			pressedInput[key] = false;
 		}
 
-		maplayer.draw();
+		// maplayer.draw();
 
 	}, layer);
 
@@ -245,6 +249,7 @@ window.onload = function() {
 		zombie : "./sprite.php_files/zombie.png",
 		skeleton : "./sprite.php_files/skeleton.png",
 		cloud : "./sprite.php_files/cloud.png",
+		grenade1 : "./sprite.php_files/grenade1.png",
 		// https://github.com/silveira/openpixels/blob/master/open_chars.xcf
 		tileSet : "./sprite.php_files/free_tileset_CC.png", // CC-By-SA
 	// http://silveiraneto.net/tag/tileset/

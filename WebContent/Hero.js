@@ -226,16 +226,35 @@ Hero.prototype = {
 		this.jetpack.deactivate();
 	},
 
-	shootGun : function() {
-		this.gun.fire(this.getGunProjectile(this, this.boomImage));
+	shootGun : function(theta) {
+		if (!theta) {
+			if (this.face == 1) {
+				theta = 0;
+			} else {
+				theta = Math.PI;
+			}
+		}
+
+		this.gun.fire(this.getGunProjectile(this), theta);
+		this.gun.fire(this.getGunProjectile(this), theta + Math.PI / 16);
+		this.gun.fire(this.getGunProjectile(this), theta + -Math.PI / 16);
 	},
 
-	throwGranade : function() {
-		this.gun.fire(getGrenadeProjectile(this, this.boomImage));
+	throwGrenade : function(theta) {
+
+		if (!theta) {
+			if (this.face == 1) {
+				theta = Math.PI / 4;
+			} else {
+				theta = 3 * Math.PI / 4;
+			}
+		}
+
+		this.gun.fire(getGrenadeProjectile(this), theta);
 	},
 
 	jump : function(goff) {
-		if (this.y >= goff) {
+		if (this.vy == 0) {
 			this.vy = -10;
 		}
 	}

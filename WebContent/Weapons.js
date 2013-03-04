@@ -3,22 +3,35 @@ function Gun(config) {
 	this.layer = config.layer;
 	this.owner = config.owner;
 
+	this.concur = false;
 	this.damage = 1;
 	this.projectiles = Array();
 
 }
 
 Gun.prototype = {
-	fire : function(newProj) {
+	fire : function(newProj, theta) {
 
 		this.projectiles.push(newProj);
 
+		newProj.setX(this.owner.getX() + this.owner.getWidth() / 2);
+		newProj.setY(this.owner.getY());
+
+		newProj.setVX(Math.cos(theta) * newProj.speed);
+		newProj.setVY(-Math.sin(theta) * newProj.speed);
+
 		this.layer.add(newProj.getImg());
+
+		if (newProj.getImg().start) {
+			newProj.getImg().start();
+		}
+
 		newProj.getImg().moveToBottom();
 
 	},
 
 	moveProjectiles : function(objects, goff) {
+
 		var proj;
 		for (p in this.projectiles) {
 			proj = this.projectiles[p];
@@ -26,11 +39,11 @@ Gun.prototype = {
 			if (proj.getX() > this.layer.getStage().getWidth()
 					&& proj.getVX() > 0) {
 				// flew off right side of screen
-				this.removeProjectile(p, proj);
+				proj.setDone();
 			} else {
 				if (proj.getX() < (0 - proj.getWidth()) && proj.getVX() < 0) {
 					// flew off left side of screen
-					this.removeProjectile(p, proj);
+					proj.setDone();
 				} else {
 					if (proj.getY() >= goff) {
 						// hit ground
@@ -54,7 +67,7 @@ Gun.prototype = {
 						this.layer.add(boomSprite);
 						boomSprite.start();
 
-						this.removeProjectile(p, proj);
+						proj.setDone();
 
 					} else {
 						for (obj in objects) {
@@ -69,31 +82,31 @@ Gun.prototype = {
 								this.layer.add(boomSprite);
 								boomSprite.start();
 
-								this.removeProjectile(p, proj);
+								proj.setDone();
+								break;
 							}
 						}
 					}
 				}
 			}
 
-			applyPhyiscs(proj, proj.getA(), this.layer.getStage().getHeight());
+			if (!proj.isDone()) {
+				applyPhyiscs(proj, proj.getA(), this.layer.getStage()
+						.getHeight());
+			}
 
 		}
 
 		var i = 0;
 		while (i < this.projectiles.length) {
 			if (this.projectiles[i].isDone()) {
+				this.projectiles[i].getImg().destroy();
 				this.projectiles.splice(i, 1);
 			} else {
 				i++;
 			}
 		}
 
-	},
-
-	removeProjectile : function(p, proj) {
-		this.projectiles[p].setDone();
-		proj.getImg().destroy();
 	},
 
 };
@@ -113,6 +126,7 @@ function Projectile(config) {
 	this.blastRadius = config.blastRadius;
 	this.done = false;
 	this.boomSprite = config.boomSprite;
+	this.speed = config.speed;
 }
 
 Projectile.prototype = {
@@ -191,13 +205,38 @@ Projectile.prototype = {
 	}
 };
 
-function getGrenadeProjectile(owner, boomImage) {
-	var cir = new Kinetic.Circle({
+function getGrenadeProjectile() {
+
+	var grenadeSpin = Array();
+
+	for ( var i = 0; i < 6; i++) {
+		grenadeSpin[i] = {
+			x : 46 * i,
+			y : 0,
+			width : 46,
+			height : 46,
+		};
+	}
+
+	var grenadeAnimations = {
+		grenadeSpin : grenadeSpin,
+	};
+
+	var grenade = new Kinetic.Sprite({
 		x : 0,
 		y : 0,
-		radius : 4,
-		fill : 'blue',
+		image : window.gameImages['grenade1'],
+		animation : 'grenadeSpin',
+		animations : grenadeAnimations,
+		framerate : 2,
 	});
+
+	// var cir = new Kinetic.Circle({
+	// x : 0,
+	// y : 0,
+	// radius : 4,
+	// fill : 'blue',
+	// });
 
 	var boom = Array();
 	for ( var i = 0; i < 4; i++) {
@@ -210,7 +249,7 @@ function getGrenadeProjectile(owner, boomImage) {
 	}
 
 	var noBoom = {
-		x : 78 * 5,
+		x : 78 * 4,
 		y : 0,
 		width : 78,
 		height : 79,
@@ -224,14 +263,15 @@ function getGrenadeProjectile(owner, boomImage) {
 	var boomSprite = new Kinetic.Sprite({
 		x : 0,
 		y : 0,
-		image : boomImage,
+		image : window.gameImages['boomImage'],
 		animation : 'boom',
 		animations : boomAnimations,
-		framerate : 7,
+		framerate : 2,
 	});
-	
+
 	boomSprite.afterFrame(3, function() {
 		boomSprite.stop();
+		// boom.setAnimation('noboom');
 		boomSprite.destroy();
 	});
 
@@ -239,23 +279,24 @@ function getGrenadeProjectile(owner, boomImage) {
 	boomSprite.avgWidth = 78;
 
 	var newProj = new Projectile({
-		x : owner.getX() + owner.getWidth() / 2,
-		y : owner.getY() + 30,
-		vx : owner.getFace() * 10,
-		vy : -5,
+		x : 0,
+		y : 0,
+		vx : 0,
+		vy : 0,
 		a : .5,
+		speed : 10,
 		width : 8,
 		height : 8,
 		damage : 5,
 		blastRadius : 50,
-		image : cir,
+		image : grenade,
 		boomSprite : boomSprite,
 	});
 
 	return newProj;
 }
 
-function getRedBulletProjectile(owner, boomImage) {
+function getRedBulletProjectile(owner) {
 	var cir = new Kinetic.Circle({
 		x : 0,
 		y : 0,
@@ -274,7 +315,7 @@ function getRedBulletProjectile(owner, boomImage) {
 	}
 
 	var noBoom = {
-		x : 78 * 5,
+		x : 78 * 4,
 		y : 0,
 		width : 78,
 		height : 79,
@@ -288,27 +329,28 @@ function getRedBulletProjectile(owner, boomImage) {
 	var boomSprite = new Kinetic.Sprite({
 		x : 0,
 		y : 0,
-		image : boomImage,
+		image : window.gameImages['boomImage'],
 		animation : 'boom',
 		animations : boomAnimations,
-		framerate : 7,
+		framerate : 2,
 	});
-	
+
 	boomSprite.afterFrame(3, function() {
 		// boom.setAnimation('noboom');
-		boomSprite.stop();
-		boomSprite.destroy();
+		this.stop();
+		this.destroy();
 	});
 
 	boomSprite.avgHeight = 79;
 	boomSprite.avgWidth = 78;
 
 	var newProj = new Projectile({
-		x : owner.getX() + owner.getWidth() / 2,
-		y : owner.getY() + 30,
-		vx : owner.getFace() * 10,
+		x : 0,
+		y : 0,
+		vx : 0,
 		vy : 0,
 		a : 0,
+		speed : 10,
 		width : 6,
 		height : 6,
 		damage : 1,
