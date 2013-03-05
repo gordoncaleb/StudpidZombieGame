@@ -110,13 +110,18 @@ Hero.prototype = {
 	},
 
 	setX : function(x) {
-		this.x = x;
-		this.sprite.setX(x);
 
-		if (this.face > 0) {
-			this.jetpack.setX(x - 5);
-		} else {
-			this.jetpack.setX(x + 5);
+		if (x >= 0 && x <= this.sprite.getStage().getWidth() - this.width) {
+
+			this.x = x;
+			this.sprite.setX(x);
+
+			if (this.face > 0) {
+				this.jetpack.setX(x - 5);
+			} else {
+				this.jetpack.setX(x + 5);
+			}
+
 		}
 	},
 
@@ -155,12 +160,12 @@ Hero.prototype = {
 	setVY : function(vy) {
 		this.vy = vy;
 	},
-	
-	getAY : function(){
+
+	getAY : function() {
 		return this.ay - this.jetpack.getA();
 	},
-	
-	getAX : function(){
+
+	getAX : function() {
 		return this.ax;
 	},
 
@@ -214,7 +219,7 @@ Hero.prototype = {
 	moveLeft : function() {
 
 		this.faceLeft();
-		
+
 		if (!this.moving) {
 			this.sprite.start();
 			this.moving = true;
@@ -231,9 +236,9 @@ Hero.prototype = {
 	},
 
 	propagate : function(gObjs, enemies) {
-		this.gun.moveProjectiles(enemies, goff + this.height);
-
 		
+		this.gun.moveProjectiles(gObjs.concat(enemies));
+
 		applyPhyiscs(this, gObjs);
 
 	},

@@ -46,48 +46,53 @@ Gun.prototype = {
 					// flew off left side of screen
 					proj.setDone();
 				} else {
-					if (proj.getY() >= goff) {
-						// hit ground
+					// if (proj.getY() >= goff) {
+					// // hit ground
+					//
+					// for (obj in objects) {
+					// if (distance(objects[obj].getX()
+					// + objects[obj].getWidth() / 2, objects[obj]
+					// .getY()
+					// + objects[obj].getHeight() / 2,
+					// proj.getX(), proj.getY()) <= proj
+					// .getBlastRadius()) {
+					// objects[obj].hit(proj.getDamage());
+					// }
+					// }
+					//
+					// var boomSprite = proj.getBoomSprite();
+					//
+					// boomSprite.setX(proj.getX() - boomSprite.avgWidth / 2);
+					// boomSprite.setY(goff - boomSprite.avgHeight / 2);
+					//
+					// this.layer.add(boomSprite);
+					// boomSprite.start();
+					//
+					// proj.setDone();
+					//
+					// } else {
+					for (obj in objects) {
+						if (collision(objects[obj], proj)) {
 
-						for (obj in objects) {
-							if (distance(objects[obj].getX()
-									+ objects[obj].getWidth() / 2, objects[obj]
-									.getY()
-									+ objects[obj].getHeight() / 2,
-									proj.getX(), proj.getY()) <= proj
-									.getBlastRadius()) {
+							if (objects[obj].hit) {
 								objects[obj].hit(proj.getDamage());
 							}
-						}
 
-						var boomSprite = proj.getBoomSprite();
+							var boomSprite = proj.getBoomSprite();
 
-						boomSprite.setX(proj.getX() - boomSprite.avgWidth / 2);
-						boomSprite.setY(goff - boomSprite.avgHeight / 2);
+							boomSprite.setX(proj.getX() - boomSprite.avgWidth
+									/ 2);
+							boomSprite.setY(proj.getY() - boomSprite.avgHeight
+									/ 2);
 
-						this.layer.add(boomSprite);
-						boomSprite.start();
+							this.layer.add(boomSprite);
+							boomSprite.start();
 
-						proj.setDone();
-
-					} else {
-						for (obj in objects) {
-							if (collision(objects[obj], proj)) {
-								objects[obj].hit(proj.getDamage());
-
-								var boomSprite = proj.getBoomSprite();
-
-								boomSprite.setX(objects[obj].getX() - 39 + 16);
-								boomSprite.setY(objects[obj].getY());
-
-								this.layer.add(boomSprite);
-								boomSprite.start();
-
-								proj.setDone();
-								break;
-							}
+							proj.setDone();
+							break;
 						}
 					}
+					// }
 				}
 			}
 

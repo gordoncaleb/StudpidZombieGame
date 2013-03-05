@@ -1,54 +1,63 @@
 function applyPhyiscs(actor, gObjs) {
 	var dt = 1;
 
-	var ax1 = actor.getX();
-	var ay1 = actor.getY();
-	var ax2 = actor.getX() + actor.getVX() * dt + 0.5 * actor.getAX() * dt * dt;
-	var ay2 = actor.getY() + actor.getVY() * dt + 0.5 * actor.getAY() * dt * dt;
+	var actorPos1 = {
+		x : actor.getX(),
+		y : actor.getY()
+	};
 
-	actor.setX(ax2);
-	actor.setY(ay2);
+	actorPos1.bot = actorPos1.y + actor.getHeight();
+	actorPos1.top = actorPos1.y;
+	actorPos1.right = actorPos1.x + actor.getWidth();
+	actorPos1.left = actorPos1.x;
+
+	var actorPos2 = {
+		x : actor.getX() + actor.getVX() * dt + 0.5 * actor.getAX() * dt * dt,
+		y : actor.getY() + actor.getVY() * dt + 0.5 * actor.getAY() * dt * dt
+	};
+
+	actor.setX(actorPos2.x);
+	actor.setY(actorPos2.y);
 
 	actor.setVY(actor.getVY() + 0.5 * actor.getAY() * dt * dt);
 	actor.setVX(actor.getVX() + 0.5 * actor.getAX() * dt * dt);
 
-	var abot = actor.getY() + actor.getHeight();
-	var atop = actor.getY();
-	var aleft = actor.getX() + actor.getWidth();
-	var aright = actor.getX();
+	actorPos2.bot = actor.getY() + actor.getHeight();
+	actorPos2.top = actor.getY();
+	actorPos2.right = actor.getX() + actor.getWidth();
+	actorPos2.left = actor.getX();
 
 	for (o in gObjs) {
 		if (collision(gObjs[o], actor)) {
 
 			var obot = gObjs[o].getY() + gObjs[o].getHeight();
 			var otop = gObjs[o].getY();
-			var oleft = gObjs[o].getX() + gObjs[o].getWidth();
-			var oright = gObjs[o].getX();
+			var oright = gObjs[o].getX() + gObjs[o].getWidth();
+			var oleft = gObjs[o].getX();
 
 			// bumping head
-			if (atop >= obot) {
+			if (actorPos1.top >= obot && actorPos2.top <= obot) {
 				actor.setVY(0);
 				actor.setY(obot);
 			}
 
 			// landing on
-			if (abot <= otop) {
+			if (actorPos1.bot <= otop && actorPos2.bot >= otop) {
 				actor.setVY(0);
 				actor.setY(otop - actor.getHeight());
 			}
 
 			//
-			if (aright >= oleft) {
+			if (actorPos1.right <= oleft && actorPos2.right >= oleft) {
 				actor.setVX(0);
 				actor.setX(oleft - actor.getWidth());
 			}
 
-			if (aleft <= oright) {
+			if (actorPos1.left >= oright && actorPos2.left <= oright) {
 				actor.setVX(0);
 				actor.setX(oright);
 			}
 
-			break;
 		}
 	}
 

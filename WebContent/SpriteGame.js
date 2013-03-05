@@ -1,5 +1,5 @@
 var tS = 32;
-var goff = tS * 17 - 10;
+var goff = tS * 18;
 
 function loadImages(sources, callback) {
 	var images = {};
@@ -48,7 +48,7 @@ function initStage(images) {
 
 	var spaceGuy = new Hero({
 		x : tS * 1,
-		y : goff,
+		y : goff - 48,
 		vx : 0,
 		vy : 0,
 		ay : 0,
@@ -74,7 +74,7 @@ function initStage(images) {
 
 	var ground = new Kinetic.Rect({
 		x : -1,
-		y : goff + 48,
+		y : goff,
 		width : stage.getWidth() + 2,
 		height : stage.getHeight() - goff + 1,
 		fill : '#FF9640',
@@ -116,7 +116,23 @@ function initStage(images) {
 
 	layer.add(floatBlock2);
 
-	var gObjs = [ ground, floatBlock, floatBlock2 ];
+	var floatBlock3 = new Kinetic.Rect({
+		x : stage.getWidth() * 0.85,
+		y : goff - 50,
+		width : 20,
+		height : 50,
+		fill : '#FF9640',
+		stroke : 'black',
+		strokeWidth : 1,
+		ay : 0,
+		ax : 0,
+		vy : 0,
+		vx : 0,
+	});
+
+	layer.add(floatBlock3);
+
+	var gObjs = [ ground, floatBlock, floatBlock2, floatBlock3 ];
 
 	stage.add(maplayer);
 	stage.add(layer);
