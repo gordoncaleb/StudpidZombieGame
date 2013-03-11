@@ -1,3 +1,5 @@
+
+
 function applyPhyiscs(actor, gObjs) {
 	var dt = 1;
 
@@ -45,6 +47,11 @@ function applyPhyiscs(actor, gObjs) {
 			if (actorPos1.bot <= otop && actorPos2.bot >= otop) {
 				actor.setVY(0);
 				actor.setY(otop - actor.getHeight());
+				
+				//standing on
+				if(actorPos1.bot == otop){
+					//actor.setVX(actor.getVX() + gObjs[o].vx);
+				}
 			}
 
 			//

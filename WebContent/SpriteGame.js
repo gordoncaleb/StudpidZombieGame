@@ -97,6 +97,8 @@ function initStage(images) {
 		vy : 0,
 		vx : 0,
 	});
+	
+	//floatBlock.rotateDeg(90);
 
 	layer.add(floatBlock);
 
@@ -248,7 +250,7 @@ function initStage(images) {
 		}
 
 		for (z in zombies) {
-			// moveAI(zombies[z], spaceGuy);
+			moveAI(zombies[z], spaceGuy);
 			applyPhyiscs(zombies[z], gObjs);
 		}
 
