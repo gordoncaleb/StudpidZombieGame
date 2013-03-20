@@ -55,6 +55,7 @@ function initStage(images) {
 		ax : 0,
 		vy : 0,
 		vx : 0,
+		mass : 1,
 		rotation : 0,
 		w : 0,
 	});
@@ -75,6 +76,9 @@ function initStage(images) {
 		ax : 0,
 		vy : -5,
 		vx : 0,
+		mass : 1,
+		rotation : 0,
+		w : 0,
 	});
 
 	layer.add(floatBlock2);
@@ -91,6 +95,9 @@ function initStage(images) {
 		ax : 0,
 		vy : 1,
 		vx : 0,
+		mass : 1,
+		rotation : 0,
+		w : 0,
 	});
 
 	// layer.add(floatBlock3);

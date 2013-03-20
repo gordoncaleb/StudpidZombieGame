@@ -27,7 +27,7 @@ function PhysicsObject(config) {
 	if (config.mass) {
 		this.mass = config.mass;
 	} else {
-		this.mass = 0;
+		this.mass = 1;
 	}
 
 	if (config.mu) {
@@ -136,10 +136,15 @@ function PhysicsRect(config) {
 		y : config.height / 2,
 	};
 
-	this.radius = Math.sqrt(config.height * config.height + config.width
-			* config.width) / 2;
+	var w = config.width;
+	var h = config.height;
+	var m = config.mass;
 
-	this.phi = Math.atan(config.height / config.width);
+	this.radius = Math.sqrt(h * h + w * w) / 2;
+
+	this.phi = Math.atan(h / w);
+
+	this.L = (m * w * h / 12) * (w * w + h * h);
 
 	PhysicsObject.call(this, config);
 	Kinetic.Rect.call(this, config);
@@ -264,9 +269,32 @@ function applyPhyiscs(objs, dt) {
 		objs[o].nextProps.right = objs[o].nextProps.x + objs[o].getWidth() / 2;
 		objs[o].nextProps.left = objs[o].nextProps.x - objs[o].getWidth() / 2;
 
+		var col;
 		for ( var n = (o + 1); n < objs.length; n++) {
 
-			if (rectCollision(objs[n], objs[o])) {
+			col = rectCollision(objs[n], objs[o]);
+
+			if (col) {
+
+				var m1pm2 = objs[n].mass + objs[o].mass;
+				var m1mm2 = objs[n].mass - objs[o].mass;
+				var m2mm1 = objs[o].mass - objs[n].mass;
+
+				objs[n].nextProps.vy = (objs[n].vy * m1mm2 + 2 * objs[o].mass
+						* objs[o].vy)
+						/ m1pm2;
+
+				objs[n].nextProps.vx = (objs[n].vx * m1mm2 + 2 * objs[o].mass
+						* objs[o].vx)
+						/ m1pm2;
+
+				objs[o].nextProps.vy = (objs[o].vy * m2mm1 + 2 * objs[n].mass
+						* objs[n].vy)
+						/ m1pm2;
+
+				objs[o].nextProps.vx = (objs[o].vx * m2mm1 + 2 * objs[n].mass
+						* objs[n].vx)
+						/ m1pm2;
 
 			}
 		}
@@ -328,7 +356,7 @@ function rectCollision(rectA, rectB) {
 				x : xavg,
 				y : yavg
 			};
-			
+
 		} else {
 			return null;
 		}
