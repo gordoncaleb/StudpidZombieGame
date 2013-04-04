@@ -108,7 +108,7 @@ function initStage(images) {
 
 	var anim = new Kinetic.Animation(function(frame) {
 
-		applyPhyiscs(gObjs, frame.timeDiff / 60);
+		applyPhyiscs(gObjs, .5);
 
 	}, layer);
 

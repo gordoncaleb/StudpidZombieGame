@@ -50,6 +50,8 @@ function PhysicsObject(config) {
 
 	this.shouldremove = false;
 
+	this.inCollisionWith = new Array();
+
 	this.nextProps = {
 		x : 0,
 		y : 0,
@@ -126,6 +128,44 @@ PhysicsObject.prototype = {
 	setW : function(w) {
 		this.w = w;
 	},
+
+	setInCollisionWith : function(obj, isColliding) {
+		var objIndex = this.inCollisionWith.indexOf(obj);
+
+		if (objIndex < 0) {
+			// wasn't colliding before
+			if (isColliding) {
+				// now it is
+				this.inCollisionWith.push(obj);
+				obj.inCollisionWith.push(this);
+				return true;
+			} else {
+				// still isn't
+				return false;
+			}
+		} else {
+			// was colliding before
+			if (isColliding) {
+				// still is
+				return false;
+			} else {
+				// isn't anymore
+				this.inCollisionWith.splice(objIndex, 1);
+				obj.inCollisionWith
+						.splice(obj.inCollisionWith.indexOf(this), 1);
+				return false;
+			}
+
+		}
+	},
+
+	isInCollisionWith : function(obj) {
+		if (inCollisionWith.indexOf(obj) >= 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 };
 
@@ -274,7 +314,9 @@ function applyPhyiscs(objs, dt) {
 
 			col = rectCollision(objs[n], objs[o]);
 
-			if (col) {
+			if (objs[o].setInCollisionWith(objs[n], col)) {
+
+				// if (col) {
 
 				var m1pm2 = objs[n].mass + objs[o].mass;
 				var m1mm2 = objs[n].mass - objs[o].mass;
