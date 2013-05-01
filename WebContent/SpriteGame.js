@@ -81,6 +81,8 @@ function initStage(images) {
 		stroke : 'black',
 		strokeWidth : 1
 	});
+	
+	ground.unMovable = true;
 
 	layer.add(ground);
 
@@ -98,13 +100,14 @@ function initStage(images) {
 		vx : 0,
 	});
 	
+	floatBlock.unMovable = true;
 	//floatBlock.rotateDeg(90);
 
 	layer.add(floatBlock);
 
 	var floatBlock2 = new Kinetic.Rect({
 		x : stage.getWidth() * 0.35,
-		y : 500,
+		y : 550,
 		width : stage.getWidth() * 0.1,
 		height : 20,
 		fill : '#FF9640',
@@ -115,6 +118,8 @@ function initStage(images) {
 		vy : 0,
 		vx : 0,
 	});
+	
+	floatBlock2.unMovable = true; 
 
 	layer.add(floatBlock2);
 
@@ -131,6 +136,8 @@ function initStage(images) {
 		vy : 0,
 		vx : 0,
 	});
+	
+	floatBlock3.unMovable = true;
 
 	layer.add(floatBlock3);
 
@@ -218,10 +225,14 @@ function initStage(images) {
 			}
 		}
 
-		fblocktheta = fblocktheta + Math.PI / 100;
-		floatBlock2.setX(floatBlock2.getX() + 3 * Math.sin(fblocktheta));
+		fblocktheta = fblocktheta + Math.PI / 1000;
+		//floatBlock2.setX(floatBlock2.getX() + 3 * Math.sin(fblocktheta));
+		floatBlock2.vx = (3 * Math.sin(fblocktheta));
 
-		spaceGuy.propagate(gObjs, zombies);
+		//spaceGuy.propagate(gObjs, zombies);
+		
+		spaceGuy.gun.moveProjectiles(gObjs.concat(zombies));
+		applyPhyiscs(spaceGuy, gObjs);
 
 		for (z in zombies) {
 			if (zombies[z].getHp() <= 0) {
