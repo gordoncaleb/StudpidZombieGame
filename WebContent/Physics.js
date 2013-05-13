@@ -1,34 +1,32 @@
-
-
 function applyPhyiscs(actor, gObjs) {
 	var dt = 1;
 
-//	var actorPos1 = {
-//		x : actor.getX(),
-//		y : actor.getY()
-//	};
-//
-//	actorPos1.bot = actorPos1.y + actor.getHeight();
-//	actorPos1.top = actorPos1.y;
-//	actorPos1.right = actorPos1.x + actor.getWidth();
-//	actorPos1.left = actorPos1.x;
-//
-//	var actorPos2 = {
-//		x : actor.getX() + actor.getVX() * dt + 0.5 * actor.getAX() * dt * dt,
-//		y : actor.getY() + actor.getVY() * dt + 0.5 * actor.getAY() * dt * dt
-//	};
-//
-//	actor.setX(actorPos2.x);
-//	actor.setY(actorPos2.y);
-//
-//	actor.setVY(actor.getVY() + 0.5 * actor.getAY() * dt * dt);
-//	actor.setVX(actor.getVX() + 0.5 * actor.getAX() * dt * dt);
-//
-//	actorPos2.bot = actor.getY() + actor.getHeight();
-//	actorPos2.top = actor.getY();
-//	actorPos2.right = actor.getX() + actor.getWidth();
-//	actorPos2.left = actor.getX();
-	
+	// var actorPos1 = {
+	// x : actor.getX(),
+	// y : actor.getY()
+	// };
+	//
+	// actorPos1.bot = actorPos1.y + actor.getHeight();
+	// actorPos1.top = actorPos1.y;
+	// actorPos1.right = actorPos1.x + actor.getWidth();
+	// actorPos1.left = actorPos1.x;
+	//
+	// var actorPos2 = {
+	// x : actor.getX() + actor.getVX() * dt + 0.5 * actor.getAX() * dt * dt,
+	// y : actor.getY() + actor.getVY() * dt + 0.5 * actor.getAY() * dt * dt
+	// };
+	//
+	// actor.setX(actorPos2.x);
+	// actor.setY(actorPos2.y);
+	//
+	// actor.setVY(actor.getVY() + 0.5 * actor.getAY() * dt * dt);
+	// actor.setVX(actor.getVX() + 0.5 * actor.getAX() * dt * dt);
+	//
+	// actorPos2.bot = actor.getY() + actor.getHeight();
+	// actorPos2.top = actor.getY();
+	// actorPos2.right = actor.getX() + actor.getWidth();
+	// actorPos2.left = actor.getX();
+
 	pos = moveTime(actor);
 
 	for (o in gObjs) {
@@ -49,10 +47,10 @@ function applyPhyiscs(actor, gObjs) {
 			if (pos.pos1.bot <= otop && pos.pos2.bot >= otop) {
 				actor.setVY(0);
 				actor.setY(otop - actor.getHeight());
-				
-				//standing on
-				if(actorPos1.bot == otop){
-					//actor.setVX(actor.getVX() + gObjs[o].vx);
+
+				// standing on
+				if (actorPos1.bot == otop) {
+					// actor.setVX(actor.getVX() + gObjs[o].vx);
 				}
 			}
 
@@ -72,7 +70,7 @@ function applyPhyiscs(actor, gObjs) {
 
 }
 
-function moveTime(obj){
+function moveTime(obj) {
 	var dt = 1;
 
 	var pos1 = {
@@ -100,53 +98,78 @@ function moveTime(obj){
 	pos2.top = obj.getY();
 	pos2.right = obj.getX() + obj.getWidth();
 	pos2.left = obj.getX();
-	
+
 	return {
 		pos1 : pos1,
 		pos2 : pos2
 	};
 }
 
-//objA move from pos.pos1 to pos.pos2. 
-function checkCollision(objA, objB, posA){
+// objA move from pos.pos1 to pos.pos2.
+function checkCollision(objA, objB, posA) {
 	if (collision(objA, objB)) {
 
-		//objA collided with objB after moving from pos.pos1 to pos.pos2
-		
+		// objA collided with objB after moving from pos.pos1 to pos.pos2
+
 		var obot = objB.getY() + objB.getHeight();
 		var otop = objB.getY();
-		var oright =objB.getX() + objB.getWidth();
+		var oright = objB.getX() + objB.getWidth();
 		var oleft = objB.getX();
 
-		// top of objA hit
+		// top of objA hit bottom of objB
 		if (posA.pos1.top >= obot && posA.pos2.top <= obot) {
-			
-			if(obj.unmovable)
-			objB.setVY(0);
-			objB.setY(obot);
+
+			if (objA.unmovable) {
+				objB.setVY(objA.vy);
+				objB.setY(posA.pos2.top - objB.getHeight());
+			} else {
+				objA.setVY(0);
+				objA.setY(obot);
+			}
 		}
 
 		// bottom side of objA hit top of objB
 		if (posA.pos1.bot <= otop && posA.pos2.bot >= otop) {
-			objB.setVY(0);
-			objB.setY(otop - objB.getHeight());
-			
-			//standing on
-			if(posA.pos1.bot == otop){
-				//actor.setVX(actor.getVX() + gObjs[o].vx);
+
+			if (objA.unmovable) {
+				objB.setVY(objA.vy);
+				objB.setY(posA.pos2.bot);
+			} else {
+				objA.setVY(0);
+				objA.setY(otop - objA.getHeight());
+			}
+
+			// standing on
+			if (posA.pos1.bot == otop) {
+				// sliding effect 0.9 friction
+				objA.vx = objA.vx + 0.9 * (objB.vx - objA.vx);
 			}
 		}
 
-		//right side of ojbA hit objB
+		// right side of ojbA hit objB
 		if (posA.pos1.right <= oleft && posA.pos2.right >= oleft) {
-			objB.setVX(0);
-			objB.setX(oleft - objB.getWidth());
+
+			if (objA.unmovable) {
+				objB.setVX(objA.vx);
+				objB.setX(posA.pos2.right);
+			} else {
+				objA.setVX(0);
+				objA.setY(objB.x - objA.width);
+			}
+
 		}
 
-		//left side of objA hit objB
+		// left side of objA hit objB
 		if (posA.pos1.left >= oright && posA.pos2.left <= oright) {
-			objB.setVX(0);
-			objB.setX(oright);
+
+			if (objA.unmovable) {
+				objB.setVX(objA.vx);
+				objB.setX(objA.x - objB.width);
+			} else {
+				objA.setVY(0);
+				objA.setY(oright);
+			}
+
 		}
 
 	}
@@ -161,21 +184,16 @@ function collision(a, b) {
 }
 
 function rectObjAInsideRectObjB(objA, objB) {
-	if (within(objA.getX(), objA.getY(), objB.getX(), objB.getY(), objB
-			.getWidth(), objB.getHeight())) {
+	if (within(objA.getX(), objA.getY(), objB.getX(), objB.getY(), objB.getWidth(), objB.getHeight())) {
 		return true;
 	} else {
-		if (within(objA.getX() + objA.getWidth(), objA.getY(), objB.getX(),
-				objB.getY(), objB.getWidth(), objB.getHeight())) {
+		if (within(objA.getX() + objA.getWidth(), objA.getY(), objB.getX(), objB.getY(), objB.getWidth(), objB.getHeight())) {
 			return true;
 		} else {
-			if (within(objA.getX(), objA.getY() + objA.getHeight(),
-					objB.getX(), objB.getY(), objB.getWidth(), objB.getHeight())) {
+			if (within(objA.getX(), objA.getY() + objA.getHeight(), objB.getX(), objB.getY(), objB.getWidth(), objB.getHeight())) {
 				return true;
 			} else {
-				if (within(objA.getX() + objA.getWidth(), objA.getY()
-						+ objA.getHeight(), objB.getX(), objB.getY(), objB
-						.getWidth(), objB.getHeight())) {
+				if (within(objA.getX() + objA.getWidth(), objA.getY() + objA.getHeight(), objB.getX(), objB.getY(), objB.getWidth(), objB.getHeight())) {
 					return true;
 				}
 			}
